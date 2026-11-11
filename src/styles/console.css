@@ -1,0 +1,412 @@
+﻿/* ==========================================================================
+   SUNSPIRE вЂ” LAUNCH TERMINAL DRAWER
+   ========================================================================== */
+
+.console-drawer {
+  --console-h: min(360px, 46vh);
+  position: fixed;
+  right: 0;
+  bottom: var(--status-h);
+  left: 0;
+  z-index: 320;
+  display: flex;
+  flex-direction: column;
+  height: var(--console-h);
+  border-top: 1px solid var(--acid-deep);
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(var(--accent-rgb), 0.055), transparent 55%),
+    #060804;
+  box-shadow:
+    0 -1px 0 rgba(var(--accent-rgb), 0.22),
+    0 -22px 60px rgba(0, 0, 0, 0.62);
+  animation: rc-console-up 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@keyframes rc-console-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.console-drawer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.55;
+}
+
+.console-drawer::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--acid), transparent);
+  opacity: 0.75;
+  animation: rc-scanline 5s linear infinite;
+}
+
+@keyframes rc-scanline {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.app.console-open .toast-tray {
+  bottom: calc(var(--status-h) + min(360px, 46vh) + 12px);
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.console-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+  height: 48px;
+  padding: 0 10px 0 12px;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(var(--accent-rgb), 0.045), transparent),
+    #0a0d07;
+}
+
+.console-head-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.console-head-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border: 1px solid var(--acid-deep);
+  background: rgba(var(--accent-rgb), 0.07);
+  color: var(--acid);
+  box-shadow: inset 0 0 12px rgba(var(--accent-rgb), 0.08);
+}
+
+.console-head-left > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.console-title {
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+
+.console-subtitle {
+  overflow: hidden;
+  max-width: 420px;
+  color: var(--muted-2);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.console-head-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex: none;
+}
+
+.console-elapsed {
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  background: #070905;
+  color: var(--acid-dim);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.console-log-count {
+  color: var(--muted-3);
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.console-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
+
+.console-head-actions .btn {
+  margin-right: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Inline progress
+   -------------------------------------------------------------------------- */
+
+.console-progress {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: none;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(var(--accent-rgb), 0.025);
+}
+
+.console-progress.is-error {
+  background: rgba(255, 107, 91, 0.04);
+}
+
+.console-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+}
+
+.console-progress-head span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.console-progress.is-error .console-progress-head span {
+  color: var(--red);
+}
+
+.console-progress-head em {
+  flex: none;
+  color: var(--acid);
+  font-style: normal;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.console-progress .progress-track {
+  height: 5px;
+}
+
+/* --------------------------------------------------------------------------
+   Log body
+   -------------------------------------------------------------------------- */
+
+.console-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 9px 12px 12px;
+  background:
+    linear-gradient(180deg, rgba(var(--accent-rgb), 0.018), transparent 18%),
+    transparent;
+  scrollbar-width: thin;
+}
+
+.console-boot {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 4px 2px;
+}
+
+.console-boot pre {
+  margin: 0;
+  color: var(--acid-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.75;
+  text-shadow: 0 0 8px rgba(var(--accent-rgb), 0.12);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.console-line {
+  display: grid;
+  grid-template-columns: 58px 16px minmax(0, 1fr);
+  gap: 6px;
+  align-items: baseline;
+  padding: 1px 2px;
+  color: #a9b795;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+}
+
+.console-line:hover {
+  background: rgba(var(--accent-rgb), 0.035);
+}
+
+.console-line-time {
+  color: #4b5840;
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  user-select: none;
+}
+
+.console-line-mark {
+  color: var(--acid-deep);
+  font-size: 8px;
+  font-weight: 700;
+  text-align: center;
+  user-select: none;
+}
+
+.console-line-text {
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console-line.is-warn {
+  color: var(--amber);
+}
+
+.console-line.is-warn .console-line-mark {
+  color: var(--amber);
+}
+
+.console-line.is-error {
+  color: var(--red);
+}
+
+.console-line.is-error .console-line-mark {
+  color: var(--red);
+}
+
+.console-line.is-debug {
+  color: var(--muted-2);
+}
+
+.console-line.is-info {
+  color: #a9b795;
+}
+
+.console-cursor {
+  display: inline-block;
+  color: var(--acid);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  animation: rc-blink 1.05s step-end infinite;
+  text-shadow: 0 0 8px rgba(var(--accent-rgb), 0.55);
+}
+
+/* --------------------------------------------------------------------------
+   Footer prompt
+   -------------------------------------------------------------------------- */
+
+.console-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 30px;
+  padding: 0 10px 0 12px;
+  border-top: 1px solid var(--line);
+  background: #0a0d07;
+}
+
+.console-prompt {
+  color: var(--acid);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.console-foot .console-cursor {
+  font-size: 9px;
+}
+
+.console-foot-hint {
+  overflow: hidden;
+  margin-left: 6px;
+  color: var(--muted-3);
+  font-size: 7.5px;
+  letter-spacing: 0.13em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.console-autoscroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  margin-left: auto;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted-3);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  transition:
+    color 0.13s ease,
+    border-color 0.13s ease,
+    background 0.13s ease;
+}
+
+.console-autoscroll:hover {
+  color: var(--cream);
+  border-color: var(--line-bright);
+}
+
+.console-autoscroll.is-on {
+  border-color: var(--acid-deep);
+  background: rgba(var(--accent-rgb), 0.06);
+  color: var(--acid-dim);
+}

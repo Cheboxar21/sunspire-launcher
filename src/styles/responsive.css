@@ -1,0 +1,474 @@
+﻿/* ==========================================================================
+   SUNSPIRE вЂ” RESPONSIVE / REDUCED MOTION
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Narrow desktop
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1360px) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  }
+
+  .trending-grid,
+  .trending-loading {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .onboarding-shell {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  }
+
+  .onboarding-brand {
+    padding: 22px 24px 18px;
+  }
+
+  .project-detail {
+    grid-template-columns: minmax(0, 1fr) 314px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Compact desktop
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+  :root {
+    --sidebar-w: 214px;
+  }
+
+  .page {
+    padding: 20px 20px 30px;
+  }
+
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-lower {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-side-card {
+    min-height: 0;
+  }
+
+  .system-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .instances-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .instance-rail {
+    position: static;
+    max-height: none;
+  }
+
+  .instance-rail-list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+  }
+
+  .rail-card {
+    min-width: 208px;
+    flex: none;
+  }
+
+  .instance-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .instance-overview-grid,
+  .instance-settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .account-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-sidebar {
+    position: static;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  .onboarding-shell {
+    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1.24fr);
+  }
+
+  .onboarding-brand-center h1 {
+    font-size: 38px;
+  }
+
+  .onboarding-brand-tiles {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Icon rail / tablet
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  :root {
+    --sidebar-w: 64px;
+  }
+
+  .titlebar-center {
+    display: none;
+  }
+
+  .sidebar-head {
+    display: grid;
+    place-items: center;
+    padding: 11px 6px;
+  }
+
+  .sidebar-brand-block {
+    justify-content: center;
+  }
+
+  .sidebar-brand-block > div,
+  .sidebar-head-meta,
+  .sidebar-section-label,
+  .nav-item-arrow,
+  .nav-item-label,
+  .nav-item-hint,
+  .shortcut-item > span:not(.shortcut-icon),
+  .sidebar-instance-info,
+  .sidebar-instance-arrow,
+  .sidebar-instance-count,
+  .sidebar-account-text,
+  .sidebar-account-arrow,
+  .sidebar-build span:not(.led) {
+    display: none;
+  }
+
+  .sidebar-scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 6px;
+  }
+
+  .sidebar-nav,
+  .sidebar-shortcuts {
+    width: 100%;
+    align-items: center;
+  }
+
+  .nav-item,
+  .shortcut-item {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+
+  .nav-item {
+    border-left-width: 1px;
+  }
+
+  .nav-item-icon,
+  .shortcut-icon {
+    width: auto;
+  }
+
+  .shortcut-item {
+    height: 32px;
+  }
+
+  .sidebar-instance {
+    width: 44px;
+    justify-content: center;
+    padding: 5px;
+  }
+
+  .sidebar-account {
+    justify-content: center;
+    padding: 6px;
+  }
+
+  .sidebar-account-head {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .sidebar-build {
+    justify-content: center;
+  }
+
+  .statusbar-center {
+    display: none;
+  }
+
+  .trending-grid,
+  .trending-loading {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .onboarding {
+    padding: 18px;
+  }
+
+  .onboarding-shell {
+    grid-template-columns: minmax(0, 1fr);
+    height: calc(100vh - 36px);
+    max-height: calc(100vh - 36px);
+  }
+
+  .onboarding-brand {
+    display: none;
+  }
+
+  .onboarding-wizard {
+    border-left: 0;
+  }
+
+  .onboarding-progress {
+    margin: 18px 56px 0 22px;
+  }
+
+  .onboarding-content {
+    padding: 20px 22px 16px;
+  }
+
+  .console-head-stats .console-log-count {
+    display: none;
+  }
+
+  .accounts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Small windows
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  :root {
+    --sidebar-w: 56px;
+    --title-h: 34px;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page {
+    padding: 16px 14px 26px;
+  }
+
+  .titlebar-sub,
+  .titlebar-version,
+  .titlebar-divider {
+    display: none;
+  }
+
+  .titlebar-name {
+    font-size: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header-actions {
+    justify-content: flex-start;
+  }
+
+  .home-hero {
+    gap: 12px;
+  }
+
+  .home-stats,
+  .system-grid,
+  .onboarding-features,
+  .account-showcase-data,
+  .oauth-steps,
+  .settings-memory-stats,
+  .project-meta-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trending-grid,
+  .trending-loading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .instance-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .instance-stat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .create-form-grid,
+  .create-form-grid-2,
+  .system-info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mods-table-head {
+    display: none;
+  }
+
+  .mods-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 5px;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .onboarding {
+    padding: 0;
+  }
+
+  .onboarding-shell {
+    height: 100vh;
+    max-height: 100vh;
+    border: none;
+  }
+
+  .onboarding-shell::before,
+  .onboarding-shell::after {
+    display: none;
+  }
+
+  .onboarding-progress {
+    margin: 14px 46px 0 16px;
+  }
+
+  .onboarding-progress-step em {
+    display: none;
+  }
+
+  .onboarding-progress-step {
+    flex: none;
+    margin-right: 8px;
+  }
+
+  .onboarding-content {
+    padding: 16px 16px 14px;
+  }
+
+  .onboarding-wizard-foot {
+    display: none;
+  }
+
+  .onboarding-skip {
+    top: 10px;
+    right: 10px;
+  }
+
+  .onboarding-presets {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .onboarding-nav .btn,
+  .onboarding-next,
+  .onboarding-build-button {
+    min-width: 0;
+  }
+
+  .console-drawer {
+    --console-h: 52vh;
+  }
+
+  .console-head-stats {
+    display: none;
+  }
+
+  .console-head {
+    gap: 8px;
+  }
+
+  .console-subtitle {
+    max-width: 200px;
+  }
+
+  .console-line {
+    grid-template-columns: 44px 12px minmax(0, 1fr);
+    gap: 4px;
+    font-size: 9px;
+  }
+
+  .console-foot-hint {
+    display: none;
+  }
+
+  .statusbar-cell:nth-child(2),
+  .statusbar-version {
+    display: none;
+  }
+
+  .toast-tray {
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .theme-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .titlebar-controls .titlebar-control {
+    width: 34px;
+  }
+
+  .onboarding-ms-button em,
+  .onboarding-features em {
+    display: none;
+  }
+
+  .console-head-actions .btn span {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

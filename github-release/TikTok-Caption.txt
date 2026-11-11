@@ -1,0 +1,8 @@
+Sunspire — ретро-лаунчер Minecraft на Rust.
+
+Лицензия Microsoft, офлайн-профили, Modrinth, сборки, моды, 5 тем, Discord Rich Presence,
+трей и автообновление. Настоящий Minecraft, а не фейковые кнопки.
+
+Ссылка на GitHub-релиз появится совсем скоро 👀
+
+#minecraft #minecraftлаунчер #лаунчер #modrinth #fabric #forge #neoforge #rust #tauri #retro #synthwave #tiktok

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Sunspire Motion Preview</title>
+<style>
+  @font-face {
+    font-family: 'Minecraft Ten';
+    src: url('assets/minecraft-ten.ttf') format('truetype');
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('assets/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('assets/JetBrainsMono-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('assets/JetBrainsMono-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: block;
+  }
+
+  :root {
+    --bg: #060805;
+    --panel: #0d120a;
+    --panel-2: #121a0d;
+    --line: #26351b;
+    --line-bright: #40552c;
+    --acid: #c6f95e;
+    --acid-bright: #e4ff9f;
+    --acid-dim: #85ac46;
+    --cream: #efe9d2;
+    --muted: #9ba28a;
+    --muted-2: #6e775f;
+    --amber: #ffb454;
+    --red: #ff6b5b;
+    --accent: #c6f95e;
+    --accent-rgb: 198, 249, 94;
+    --pixel: 'Minecraft Ten', 'JetBrains Mono', monospace;
+    --mono: 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: #000;
+    color: var(--cream);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stage {
+    position: relative;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(var(--accent-rgb), 0.10), transparent 42%),
+      radial-gradient(circle at 80% 85%, rgba(255, 180, 84, 0.05), transparent 38%),
+      linear-gradient(180deg, #070a05 0%, #050704 55%, #080b06 100%);
+  }
+
+  .bg, .scenes, .hud, .fx { position: absolute; inset: 0; }
+  .bg { overflow: hidden; }
+  .bg-grid {
+    position: absolute;
+    left: -30%;
+    right: -30%;
+    bottom: -120px;
+    height: 1000px;
+    background-image:
+      linear-gradient(rgba(var(--accent-rgb), 0.13) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--accent-rgb), 0.13) 1px, transparent 1px);
+    background-size: 72px 72px;
+    transform: perspective(700px) rotateX(63deg);
+    transform-origin: center bottom;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 100%);
+    opacity: 0.65;
+  }
+  .bg-glow {
+    position: absolute;
+    width: 900px;
+    height: 900px;
+    left: 90px;
+    top: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--accent-rgb), 0.13), transparent 64%);
+    filter: blur(20px);
+    opacity: 0.8;
+  }
+  .bg-sun {
+    position: absolute;
+    width: 560px;
+    height: 560px;
+    left: 260px;
+    top: 560px;
+    border-radius: 50%;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 18px, rgba(6, 8, 5, 0.9) 18px 25px),
+      radial-gradient(circle at 50% 38%, rgba(var(--accent-rgb), 0.34), rgba(var(--accent-rgb), 0.04) 68%, transparent 70%);
+    opacity: 0.3;
+    filter: blur(2px);
+  }
+  .stars span {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--acid);
+    box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.8);
+    opacity: 0.5;
+  }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.34) 0px,
+      rgba(0, 0, 0, 0.34) 2px,
+      transparent 2px,
+      transparent 5px
+    );
+    opacity: 0.42;
+    pointer-events: none;
+  }
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 46%, transparent 42%, rgba(0, 0, 0, 0.72) 100%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.7));
+    pointer-events: none;
+  }
+  .noise {
+    position: absolute;
+    inset: -20%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    opacity: 0.055;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  .crt-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.18), transparent);
+    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.18);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .hud {
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 38px 54px;
+    pointer-events: none;
+    color: var(--muted);
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .hud.top { height: 120px; }
+  .hud.bottom {
+    top: auto;
+    bottom: 0;
+    height: 124px;
+    align-items: flex-end;
+  }
+  .hud-left, .hud-right { display: flex; align-items: center; gap: 12px; }
+  .hud-left strong { color: var(--cream); font-weight: 500; }
+  .led {
+    width: 9px;
+    height: 9px;
+    background: var(--acid);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.8);
+  }
+  .led.red { background: var(--red); box-shadow: 0 0 10px rgba(255, 107, 91, 0.8); }
+  .top-right { text-align: right; color: var(--muted-2); font-size: 15px; line-height: 1.7; }
+  .top-right strong { color: var(--cream); font-weight: 500; }
+  .bottom-left { display: flex; flex-direction: column; gap: 8px; min-width: 360px; }
+  .scene-label { color: var(--acid); font-size: 15px; letter-spacing: 0.22em; }
+  .progress {
+    width: 360px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+  .progress-fill {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--acid-dim), var(--acid));
+    box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.55);
+  }
+  .bottom-right { text-align: right; color: var(--muted-2); font-size: 14px; line-height: 1.7; }
+  .bottom-right strong { color: var(--cream); font-weight: 500; }
+
+  .scenes { z-index: 10; }
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .scene-inner {
+    position: absolute;
+    left: 72px;
+    right: 72px;
+    top: 168px;
+    bottom: 190px;
+    display: flex;
+    flex-direction: column;
+  }
+  .scene-index {
+    position: absolute;
+    right: -10px;
+    top: -56px;
+    font-family: var(--pixel);
+    font-size: 250px;
+    line-height: 1;
+    color: rgba(var(--accent-rgb), 0.05);
+    pointer-events: none;
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--acid);
+    font-size: 21px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .kicker::before {
+    content: '';
+    width: 24px;
+    height: 2px;
+    background: var(--acid);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.6);
+  }
+  .scene h1 {
+    margin: 20px 0 0;
+    font-family: var(--pixel);
+    font-weight: 400;
+    font-size: 84px;
+    line-height: 1.16;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-shadow: 5px 5px 0 rgba(0, 0, 0, 0.52);
+  }
+  .scene h1 .accent { color: var(--acid); }
+  .scene h1 .small { font-size: 0.72em; }
+  .scene .sub {
+    max-width: 910px;
+    margin: 22px 0 0;
+    color: #b7bea9;
+    font-size: 25px;
+    line-height: 1.48;
+  }
+  .scene .sub strong { color: var(--cream); font-weight: 500; }
+
+  .viewport {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    margin-top: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1400px;
+  }
+  .window {
+    position: relative;
+    width: 100%;
+    max-width: 936px;
+    height: 100%;
+    max-height: 640px;
+    border: 2px solid var(--line-bright);
+    background: #050704;
+    box-shadow:
+      0 32px 80px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(0, 0, 0, 0.65),
+      0 0 38px rgba(var(--accent-rgb), 0.10);
+    overflow: hidden;
+    transform-origin: 50% 40%;
+    will-change: transform;
+  }
+  .window::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18%),
+      repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 5px);
+    pointer-events: none;
+  }
+  .window::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.45), transparent);
+    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.35);
+    z-index: 4;
+    top: 0;
+    animation: none;
+  }
+  .window-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--line);
+    background: #0a0e07;
+    color: var(--muted-2);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .window-bar .dots { display: flex; gap: 5px; }
+  .window-bar .dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--line-bright);
+  }
+  .window-bar .dots span:nth-child(1) { background: var(--red); }
+  .window-bar .dots span:nth-child(2) { background: var(--amber); }
+  .window-bar .dots span:nth-child(3) { background: var(--acid-dim); }
+  .window-bar strong { margin-left: 8px; color: var(--muted); font-weight: 500; }
+  .window img {
+    display: block;
+    width: 100%;
+    height: calc(100% - 34px);
+    object-fit: contain;
+    object-position: center;
+    background: #050704;
+    filter: saturate(1.06) contrast(1.03);
+  }
+  .window-corner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: var(--acid);
+    border-style: solid;
+    z-index: 6;
+  }
+  .corner-tl { left: -3px; top: -3px; border-width: 2px 0 0 2px; }
+  .corner-tr { right: -3px; top: -3px; border-width: 2px 2px 0 0; }
+  .corner-bl { left: -3px; bottom: -3px; border-width: 0 0 2px 2px; }
+  .corner-br { right: -3px; bottom: -3px; border-width: 0 2px 2px 0; }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border: 1px solid var(--line-bright);
+    background: rgba(var(--accent-rgb), 0.04);
+    color: var(--acid);
+    font-size: 14px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+  .chip.muted { color: var(--muted); border-color: var(--line); background: rgba(255,255,255,0.02); }
+  .chip.amber { color: var(--amber); border-color: var(--amber-dim, #9a6b30); }
+  .chip .dot { width: 6px; height: 6px; background: currentColor; box-shadow: 0 0 8px currentColor; }
+  .chip.is-active {
+    background: var(--acid);
+    border-color: var(--acid);
+    color: #101405;
+    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.35);
+  }
+  .chip.is-active .dot { background: #101405; box-shadow: none; }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .stat {
+    padding: 10px 13px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .stat span { display: block; color: var(--muted-2); font-size: 11px; letter-spacing: 0.14em; }
+  .stat strong { display: block; margin-top: 4px; color: var(--acid); font-family: var(--pixel); font-size: 24px; font-weight: 400; }
+
+  /* Intro */
+  .intro {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 80px;
+  }
+  .intro .logo-wrap {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    display: grid;
+    place-items: center;
+  }
+  .intro .logo-ring {
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(var(--accent-rgb), 0.35);
+    box-shadow: 0 0 38px rgba(var(--accent-rgb), 0.14), inset 0 0 38px rgba(var(--accent-rgb), 0.08);
+  }
+  .intro .logo-ring.outer {
+    inset: -26px;
+    border-style: dashed;
+    opacity: 0.35;
+  }
+  .intro .logo {
+    width: 210px;
+    height: 210px;
+    border-radius: 24px;
+    border: 1px solid rgba(var(--accent-rgb), 0.5);
+    box-shadow: 0 0 60px rgba(var(--accent-rgb), 0.22);
+    image-rendering: auto;
+  }
+  .intro .brand {
+    margin-top: 48px;
+    font-family: var(--pixel);
+    font-size: 116px;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    color: var(--cream);
+    text-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55), 0 0 40px rgba(var(--accent-rgb), 0.12);
+  }
+  .intro .brand-sub {
+    margin-top: 16px;
+    color: var(--acid);
+    font-family: var(--pixel);
+    font-size: 30px;
+    letter-spacing: 0.16em;
+  }
+  .intro .tagline {
+    margin-top: 28px;
+    color: var(--muted);
+    font-size: 23px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .boot-box {
+    position: absolute;
+    left: 50%;
+    bottom: 150px;
+    transform: translateX(-50%);
+    width: 760px;
+    padding: 20px 24px;
+    border: 1px solid var(--line);
+    background: rgba(5, 7, 4, 0.78);
+    text-align: left;
+    font-size: 19px;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+  .boot-line { display: flex; justify-content: space-between; gap: 20px; }
+  .boot-line b { color: var(--acid); font-weight: 500; }
+
+  /* Discord mockup */
+  .discord-wrap { display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+  .discord-card {
+    width: 900px;
+    padding: 30px 32px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #23252b, #1b1d22);
+    border: 1px solid #34363d;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+    color: #f2f3f5;
+    font-family: 'Segoe UI', 'JetBrains Mono', sans-serif;
+  }
+  .discord-head { display: flex; align-items: center; gap: 16px; color: #b5bac1; font-size: 17px; }
+  .discord-head .discord-mark { color: #5865f2; font-size: 26px; }
+  .discord-body { display: flex; gap: 24px; margin-top: 22px; align-items: flex-start; }
+  .discord-avatar {
+    width: 132px;
+    height: 132px;
+    border-radius: 24px;
+    border: 2px solid #3a3d45;
+    box-shadow: 0 0 30px rgba(198, 249, 94, 0.16);
+  }
+  .discord-info { flex: 1; min-width: 0; }
+  .discord-info h3 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
+  .discord-info .playing { margin-top: 4px; color: #b5bac1; font-size: 19px; }
+  .discord-info .details { margin-top: 14px; color: #dbdee1; font-size: 21px; font-weight: 600; }
+  .discord-info .state { margin-top: 4px; color: #b5bac1; font-size: 19px; }
+  .discord-timer { margin-top: 14px; color: #57f287; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  .discord-timer .gamepad { width: 22px; height: 22px; border: 1px solid #57f287; display: grid; place-items: center; font-size: 12px; }
+  .discord-wave { display: flex; align-items: flex-end; gap: 4px; height: 26px; margin-left: auto; }
+  .discord-wave span { width: 4px; background: #57f287; opacity: 0.85; }
+
+  .presence-states {
+    width: 900px;
+    margin-top: 16px;
+    border: 1px solid var(--line-bright);
+    background: rgba(255, 255, 255, 0.015);
+  }
+  .presence-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+  .presence-row:last-child { border-bottom: 0; }
+  .presence-row .p-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--line-bright);
+    flex: none;
+  }
+  .presence-row .p-value { margin-left: auto; color: var(--cream); letter-spacing: 0.04em; }
+  .presence-row.is-live { color: var(--acid); background: rgba(var(--accent-rgb), 0.055); }
+  .presence-row.is-live .p-dot { background: var(--acid); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.8); }
+  .presence-row.is-live .p-value { color: var(--acid); }
+
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; align-items: stretch; }
+  .feature-card {
+    padding: 28px;
+    min-height: 360px;
+    border: 1px solid var(--line-bright);
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.045), rgba(0,0,0,0.1));
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  }
+  .feature-card h3 { margin: 0; color: var(--cream); font-family: var(--pixel); font-size: 30px; font-weight: 400; line-height: 1.15; }
+  .feature-card p { margin: 10px 0 0; color: var(--muted); font-size: 17px; line-height: 1.55; }
+  .feature-card.feature-wide { grid-column: 1 / -1; min-height: 0; padding: 22px 26px; }
+  .feature-card.feature-wide h3 { font-size: 24px; }
+  .feature-card.feature-wide p { margin-top: 6px; }
+  .terminal-lines { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 16px; color: var(--acid-dim); font-size: 14px; letter-spacing: 0.04em; }
+  .terminal-lines b { color: var(--acid); font-weight: 500; }
+  .tray-mock {
+    margin-top: 18px;
+    height: 180px;
+    border: 1px solid var(--line);
+    background: #080b05;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    gap: 10px;
+  }
+  .tray-window {
+    flex: 1;
+    height: 128px;
+    border: 1px solid var(--line-bright);
+    background: #0b0f08;
+    padding: 10px;
+    color: var(--muted-2);
+    font-size: 11px;
+  }
+  .tray-bar { display: flex; gap: 6px; }
+  .tray-bar span { width: 24px; height: 24px; border: 1px solid var(--line-strong); background: var(--panel-2); }
+  .tray-bar span.acid { background: var(--acid); box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5); }
+  .update-mock { margin-top: 26px; }
+  .update-head { display: flex; justify-content: space-between; color: var(--cream); font-size: 18px; }
+  .update-head b { color: var(--acid); font-weight: 500; }
+  .update-track { height: 14px; margin-top: 12px; background: rgba(255,255,255,0.08); }
+  .update-fill { height: 100%; background: linear-gradient(90deg, var(--acid-dim), var(--acid)); box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.4); }
+  .update-meta { display: flex; justify-content: space-between; margin-top: 10px; color: var(--muted-2); font-size: 13px; }
+
+  /* Download */
+  .download-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .download-card {
+    position: relative;
+    width: 900px;
+    padding: 42px 40px 34px;
+    border: 2px solid var(--line-bright);
+    background:
+      radial-gradient(circle at 20% 0%, rgba(var(--accent-rgb), 0.10), transparent 50%),
+      linear-gradient(180deg, #11170c, #090d06);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.62), 0 0 44px rgba(var(--accent-rgb), 0.08);
+    overflow: hidden;
+  }
+  .github-mark { width: 116px; height: 116px; color: var(--cream); }
+  .download-card h2 { margin: 18px 0 0; color: var(--cream); font-family: var(--pixel); font-size: 42px; font-weight: 400; line-height: 1.1; }
+  .download-url { margin-top: 12px; color: var(--acid); font-size: 27px; letter-spacing: 0.02em; }
+  .download-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .download-meta span { padding: 7px 10px; border: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  .download-meta span b { color: var(--cream); font-weight: 500; }
+  .download-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 28px;
+    padding: 16px 20px;
+    background: var(--acid);
+    color: #101405;
+    font-family: var(--pixel);
+    font-size: 26px;
+    letter-spacing: 0.03em;
+    box-shadow: 0 0 28px rgba(var(--accent-rgb), 0.22);
+  }
+  .download-cta span { font-family: var(--mono); font-size: 24px; }
+  .download-note { margin-top: 14px; color: var(--muted-2); font-size: 13px; letter-spacing: 0.12em; }
+  .free-stamp {
+    position: absolute;
+    right: 28px;
+    top: 38px;
+    padding: 8px 14px;
+    border: 3px solid var(--acid);
+    color: var(--acid);
+    font-family: var(--pixel);
+    font-size: 30px;
+    letter-spacing: 0.08em;
+    transform: rotate(-8deg);
+    text-shadow: 0 0 16px rgba(var(--accent-rgb), 0.5);
+  }
+  .download-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.8), transparent);
+    box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.4);
+    top: 0;
+  }
+
+  .outro { align-items: center; justify-content: center; text-align: center; padding-top: 40px; }
+  .outro .logo { width: 180px; height: 180px; border-radius: 22px; border: 1px solid rgba(var(--accent-rgb), 0.5); box-shadow: 0 0 60px rgba(var(--accent-rgb), 0.24); }
+  .outro .brand { margin-top: 34px; font-family: var(--pixel); font-size: 108px; line-height: 1.05; letter-spacing: 0.03em; color: var(--cream); text-shadow: 5px 5px 0 rgba(0,0,0,0.55); }
+  .outro .line { margin-top: 18px; color: var(--acid); font-family: var(--pixel); font-size: 30px; letter-spacing: 0.08em; }
+  .outro .url { margin-top: 34px; padding: 12px 18px; border: 1px solid var(--line-bright); color: var(--acid); font-size: 23px; background: rgba(var(--accent-rgb), 0.04); }
+  .outro .rust { margin-top: 26px; color: var(--muted); font-size: 17px; letter-spacing: 0.18em; text-transform: uppercase; }
+
+  .end-fade {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .end-line {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--acid);
+    box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.7);
+    transform: translate(-50%, -50%);
+    z-index: 101;
+    opacity: 0;
+  }
+
+  .glitch {
+    text-shadow:
+      3px 0 0 rgba(255, 60, 80, 0.55),
+      -3px 0 0 rgba(60, 220, 255, 0.45),
+      5px 5px 0 rgba(0, 0, 0, 0.6) !important;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bg">
+    <div class="bg-glow"></div>
+    <div class="bg-sun"></div>
+    <div class="bg-grid" id="bg-grid"></div>
+    <div class="stars" id="stars"></div>
+  </div>
+
+  <div class="scenes" id="scenes">
+    <!-- 00 INTRO -->
+    <section class="scene" data-scene="0" data-start="0" data-end="4">
+      <div class="scene-inner intro">
+        <div class="logo-wrap">
+          <div class="logo-ring outer"></div>
+          <div class="logo-ring"></div>
+          <img class="logo" src="assets/logo.png" alt="" />
+        </div>
+        <div class="brand" id="intro-brand">SUNSPIRE</div>
+        <div class="brand-sub">MINECRAFT LAUNCHER</div>
+        <div class="tagline">РЕТРО-ЛАУНЧЕР С НАСТОЯЩИМ MINECRAFT</div>
+        <div class="boot-box">
+          <div class="boot-line" data-boot="0"><span>[ OK ] MICROSOFT OAUTH 2.0</span><b>READY</b></div>
+          <div class="boot-line" data-boot="1"><span>[ OK ] MODRINTH API v2</span><b>READY</b></div>
+          <div class="boot-line" data-boot="2"><span>[ OK ] FABRIC / FORGE / NEOFORGE</span><b>READY</b></div>
+          <div class="boot-line" data-boot="3"><span>[ OK ] RUST CORE</span><b>ONLINE</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 01 MICROSOFT -->
+    <section class="scene" data-scene="1" data-start="4" data-end="8">
+      <div class="scene-inner">
+        <div class="scene-index">01</div>
+        <div class="kicker" data-rise data-delay="0.05">// 01 / LICENSE</div>
+        <h1 data-rise data-delay="0.12">ЛИЦЕНЗИЯ<br /><span class="accent">MICROSOFT</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Настоящий аккаунт, настоящие скины и доступ к серверам. Офлайн-профили тоже на месте.</p>
+        <div class="viewport">
+          <div class="window" data-window>
+            <div class="window-bar"><span class="dots"><span></span><span></span><span></span></span><strong>ACCOUNTS / MICROSOFT OAUTH</strong></div>
+            <img src="assets/accounts.png" alt="" />
+            <span class="window-corner corner-tl"></span><span class="window-corner corner-tr"></span><span class="window-corner corner-bl"></span><span class="window-corner corner-br"></span>
+          </div>
+        </div>
+        <div class="chips" data-rise data-delay="0.38">
+          <span class="chip"><span class="dot"></span>MICROSOFT OAUTH 2.0</span>
+          <span class="chip muted"><span class="dot"></span>OFFLINE PROFILES</span>
+          <span class="chip amber"><span class="dot"></span>SKINS / CAPES</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 MODRINTH -->
+    <section class="scene" data-scene="2" data-start="8" data-end="12">
+      <div class="scene-inner">
+        <div class="scene-index">02</div>
+        <div class="kicker" data-rise data-delay="0.05">// 02 / MODRINTH</div>
+        <h1 data-rise data-delay="0.12">КАТАЛОГ<br /><span class="accent">МОДОВ</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Моды, шейдеры, ресурспаки и модпаки — напрямую из Modrinth. Установка в один клик.</p>
+        <div class="viewport">
+          <div class="window" data-window>
+            <div class="window-bar"><span class="dots"><span></span><span></span><span></span></span><strong>MODRINTH CATALOG / FABRIC 26.3</strong></div>
+            <img src="assets/catalog.png" alt="" />
+            <span class="window-corner corner-tl"></span><span class="window-corner corner-tr"></span><span class="window-corner corner-bl"></span><span class="window-corner corner-br"></span>
+          </div>
+        </div>
+        <div class="chips" data-rise data-delay="0.38">
+          <span class="chip"><span class="dot"></span>МОДЫ</span>
+          <span class="chip"><span class="dot"></span>МОДПАКИ</span>
+          <span class="chip"><span class="dot"></span>ШАЙДЕРЫ</span>
+          <span class="chip amber"><span class="dot"></span>1 CLICK INSTALL</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 INSTANCES -->
+    <section class="scene" data-scene="3" data-start="12" data-end="16">
+      <div class="scene-inner">
+        <div class="scene-index">03</div>
+        <div class="kicker" data-rise data-delay="0.05">// 03 / INSTANCES</div>
+        <h1 data-rise data-delay="0.12">СБОРКИ<br /><span class="accent">ПОД КОНТРОЛЕМ</span></h1>
+        <p class="sub" data-rise data-delay="0.22">RAM, Java, моды и файлы — в одном месте. Включай, выключай и удаляй без боли.</p>
+        <div class="viewport">
+          <div class="window" data-window>
+            <div class="window-bar"><span class="dots"><span></span><span></span><span></span></span><strong>INSTANCE DECK / FILES</strong></div>
+            <img src="assets/instances-files.png" alt="" />
+            <span class="window-corner corner-tl"></span><span class="window-corner corner-tr"></span><span class="window-corner corner-bl"></span><span class="window-corner corner-br"></span>
+          </div>
+        </div>
+        <div class="stat-row" data-rise data-delay="0.38">
+          <div class="stat"><span>МОДЫ</span><strong>26</strong></div>
+          <div class="stat"><span>ПАМЯТЬ</span><strong>8 GB</strong></div>
+          <div class="stat"><span>JAVA</span><strong>25</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 THEMES -->
+    <section class="scene" data-scene="4" data-start="16" data-end="20">
+      <div class="scene-inner">
+        <div class="scene-index">04</div>
+        <div class="kicker" data-rise data-delay="0.05">// 04 / THEMES</div>
+        <h1 data-rise data-delay="0.12">5 ТЕМ<br /><span class="accent">НА ЛЮБОЙ ВКУС</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Меняй палитру всего интерфейса мгновенно — от кислотного зелёного до монохрома.</p>
+        <div class="viewport">
+          <div class="window" data-window>
+            <div class="window-bar"><span class="dots"><span></span><span></span><span></span></span><strong>SETTINGS / COLOR SYSTEM</strong></div>
+            <img src="assets/themes.png" alt="" />
+            <span class="window-corner corner-tl"></span><span class="window-corner corner-tr"></span><span class="window-corner corner-bl"></span><span class="window-corner corner-br"></span>
+          </div>
+        </div>
+        <div class="chips" id="theme-chips" data-rise data-delay="0.38">
+          <span class="chip" data-theme-chip="acid"><span class="dot"></span>ACID</span>
+          <span class="chip" data-theme-chip="amber"><span class="dot"></span>AMBER</span>
+          <span class="chip" data-theme-chip="cyan"><span class="dot"></span>CYAN</span>
+          <span class="chip" data-theme-chip="magenta"><span class="dot"></span>MAGENTA</span>
+          <span class="chip" data-theme-chip="mono"><span class="dot"></span>MONO</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 DISCORD -->
+    <section class="scene" data-scene="5" data-start="20" data-end="24">
+      <div class="scene-inner">
+        <div class="scene-index">05</div>
+        <div class="kicker" data-rise data-delay="0.05">// 05 / DISCORD</div>
+        <h1 data-rise data-delay="0.12">СТАТУС<br /><span class="accent">В DISCORD</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Видно, что ты в лаунчере, в одиночной игре или на сервере. С правильной иконкой.</p>
+        <div class="viewport">
+          <div class="discord-wrap" data-window>
+            <div class="discord-card">
+              <div class="discord-head"><span class="discord-mark">◈</span> Играет в <strong style="color:#f2f3f5">Sunspire</strong></div>
+              <div class="discord-body">
+                <img class="discord-avatar" src="assets/logo.png" alt="" />
+                <div class="discord-info">
+                  <h3>Sunspire</h3>
+                  <div class="playing">Minecraft Launcher</div>
+                  <div class="details">В игре</div>
+                  <div class="state">СЕРВЕР: play.sunspire.ru</div>
+                  <div class="discord-timer"><span class="gamepad">▸</span><span id="discord-timer">01:24</span> в игре</div>
+                </div>
+                <div class="discord-wave" id="discord-wave">
+                  <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+            <div class="chips">
+              <span class="chip"><span class="dot"></span>RICH PRESENCE</span>
+              <span class="chip muted"><span class="dot"></span>ОДИНОЧКА / СЕРВЕР</span>
+            </div>
+            <div class="presence-states">
+              <div class="presence-row"><span class="p-dot"></span>В ЛАУНЧЕРЕ<span class="p-value">SUNSPIRE · МЕНЮ</span></div>
+              <div class="presence-row is-live"><span class="p-dot"></span>В ИГРЕ · СЕРВЕР<span class="p-value">PLAY.SUNSPIRE.RU</span></div>
+              <div class="presence-row"><span class="p-dot"></span>В ИГРЕ · ОДИНОЧКА<span class="p-value">МИР · ВЫЖИВАНИЕ</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 BACKGROUND -->
+    <section class="scene" data-scene="6" data-start="24" data-end="28">
+      <div class="scene-inner">
+        <div class="scene-index">06</div>
+        <div class="kicker" data-rise data-delay="0.05">// 06 / BACKGROUND</div>
+        <h1 data-rise data-delay="0.12">ЖИВЁТ<br /><span class="accent">В ФОНЕ</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Сворачивается в трей, не мешает игре и сам проверяет обновления.</p>
+        <div class="viewport">
+          <div class="feature-grid" data-window>
+            <div class="feature-card">
+              <h3>TRAY MODE</h3>
+              <p>Закрыл окно — лаунчер в трее. Игра и загрузки продолжаются.</p>
+              <div class="tray-mock">
+                <div class="tray-window">SUNSPIRE<br /><span style="color:var(--acid)">● FABRIC 26.3</span></div>
+                <div class="tray-bar"><span></span><span></span><span class="acid"></span><span></span></div>
+              </div>
+            </div>
+            <div class="feature-card">
+              <h3>AUTO-UPDATE</h3>
+              <p>Проверка при запуске, скачивание установщика и тихая установка.</p>
+              <div class="update-mock">
+                <div class="update-head"><span>Доступно обновление</span><b>1.1.0</b></div>
+                <div class="update-track"><div class="update-fill" id="update-fill"></div></div>
+                <div class="update-meta"><span>Sunspire Setup</span><span id="update-percent">64%</span></div>
+              </div>
+            </div>
+            <div class="feature-card feature-wide">
+              <h3>BACKGROUND SESSION</h3>
+              <p>Лаунчер не блокирует игру, не мешает загрузкам и остаётся на связи.</p>
+              <div class="terminal-lines">
+                <span>&gt; tray: <b>active</b></span>
+                <span>&gt; downloads: <b>3 / 3</b></span>
+                <span>&gt; discord: <b>connected</b></span>
+                <span>&gt; java: <b>25</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chips" data-rise data-delay="0.38">
+          <span class="chip"><span class="dot"></span>СИСТЕМНЫЙ ТРЕЙ</span>
+          <span class="chip muted"><span class="dot"></span>ФОНОВЫЕ ЗАГРУЗКИ</span>
+          <span class="chip amber"><span class="dot"></span>AUTO-UPDATE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 DOWNLOAD -->
+    <section class="scene" data-scene="7" data-start="28" data-end="32">
+      <div class="scene-inner">
+        <div class="scene-index">07</div>
+        <div class="kicker" data-rise data-delay="0.05">// 07 / DOWNLOAD</div>
+        <h1 data-rise data-delay="0.12">СКАЧАЙ<br /><span class="accent">БЕСПЛАТНО</span></h1>
+        <p class="sub" data-rise data-delay="0.22">Один установщик для Windows 10/11. Без подписок и скрытых платежей.</p>
+        <div class="viewport">
+          <div class="download-wrap" data-window>
+            <div class="download-card">
+              <div class="download-scan" id="download-scan"></div>
+              <div class="free-stamp">FREE</div>
+              <svg class="github-mark" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.42 7.42 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+              <h2>GITHUB RELEASE</h2>
+              <div class="download-url" id="github-url">СКОРО НА GITHUB</div>
+              <div class="download-meta">
+                <span>WINDOWS <b>10 / 11</b></span>
+                <span>УСТАНОВЩИК <b>12 MB</b></span>
+                <span>ЯДРО <b>RUST</b></span>
+                <span>ЦЕНА <b>0 ₽</b></span>
+              </div>
+              <div class="download-cta">СКАЧАТЬ С GITHUB <span>→</span></div>
+              <div class="download-note">РЕЛИЗ СКОРО · БЕЗ РЕГИСТРАЦИИ · ОДИН УСТАНОВЩИК</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 OUTRO -->
+    <section class="scene" data-scene="8" data-start="32" data-end="36">
+      <div class="scene-inner outro">
+        <div class="scene-index" style="top:-20px;right:20px;">08</div>
+        <img class="logo" src="assets/logo.png" alt="" />
+        <div class="brand">SUNSPIRE</div>
+        <div class="line">РЕТРО-ЛАУНЧЕР. НАСТОЯЩИЙ MINECRAFT.</div>
+        <div class="url" id="outro-url">СКОРО НА GITHUB</div>
+        <div class="rust">WINDOWS 10 / 11 · FREE · MADE ON RUST</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="hud top">
+    <div class="hud-left"><span class="led red"></span><strong>SUNSPIRE</strong> // MOTION PREVIEW</div>
+    <div class="top-right"><strong id="timecode">00:00</strong> / 00:36<br />1080 × 1920 · 30 FPS</div>
+  </div>
+  <div class="hud bottom">
+    <div class="bottom-left">
+      <span class="scene-label" id="scene-label">00 / BOOT</span>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="bottom-right"><strong>GITHUB</strong><br />СКОРО · SUNSPIRE FREE</div>
+  </div>
+
+  <div class="fx">
+    <div class="scanlines"></div>
+    <div class="crt-line" id="crt-line"></div>
+    <div class="vignette"></div>
+    <div class="noise"></div>
+  </div>
+
+  <div class="end-line" id="end-line"></div>
+  <div class="end-fade" id="end-fade"></div>
+</div>
+
+<script>
+  const DURATION = 36;
+  const GITHUB_URL = 'СКОРО НА GITHUB';
+  const scenes = [...document.querySelectorAll('.scene')].map((el) => ({
+    el,
+    start: Number(el.dataset.start),
+    end: Number(el.dataset.end)
+  }));
+  const sceneNames = ['00 / BOOT', '01 / LICENSE', '02 / MODRINTH', '03 / INSTANCES', '04 / THEMES', '05 / DISCORD', '06 / BACKGROUND', '07 / DOWNLOAD', '08 / READY'];
+  const themeColors = [
+    ['#c6f95e', '198, 249, 94'],
+    ['#ffb454', '255, 180, 84'],
+    ['#62e6ff', '98, 230, 255'],
+    ['#ff6fd8', '255, 111, 216'],
+    ['#f2ead2', '242, 234, 210']
+  ];
+  const themeKeys = ['acid', 'amber', 'cyan', 'magenta', 'mono'];
+
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const smooth = (v) => {
+    const x = clamp(v);
+    return x * x * (3 - 2 * x);
+  };
+
+  const stars = document.getElementById('stars');
+  const starSeed = [];
+  for (let i = 0; i < 70; i += 1) {
+    const star = document.createElement('span');
+    const x = (i * 137.5) % 1040 + 20;
+    const y = (i * 211.3) % 1780 + 60;
+    const s = 1.5 + ((i * 7) % 4) * 0.8;
+    star.style.left = x + 'px';
+    star.style.top = y + 'px';
+    star.style.width = s + 'px';
+    star.style.height = s + 'px';
+    star.style.opacity = 0.18 + ((i * 13) % 50) / 100;
+    stars.appendChild(star);
+    starSeed.push({ el: star, x, y, s });
+  }
+
+  const bootLines = [...document.querySelectorAll('[data-boot]')];
+  const bootBox = document.querySelector('.boot-box');
+  const sceneTitle = [...document.querySelectorAll('.scene h1')];
+  const risers = [...document.querySelectorAll('[data-rise]')];
+  const windows = [...document.querySelectorAll('[data-window]')];
+  const themeChips = [...document.querySelectorAll('[data-theme-chip]')];
+  const discordTimer = document.getElementById('discord-timer');
+  const discordWave = [...document.querySelectorAll('#discord-wave span')];
+  const updateFill = document.getElementById('update-fill');
+  const updatePercent = document.getElementById('update-percent');
+  const downloadScan = document.getElementById('download-scan');
+  const progressFill = document.getElementById('progress-fill');
+  const timecode = document.getElementById('timecode');
+  const sceneLabel = document.getElementById('scene-label');
+  const crtLine = document.getElementById('crt-line');
+  const bgGrid = document.getElementById('bg-grid');
+  const endFade = document.getElementById('end-fade');
+  const endLine = document.getElementById('end-line');
+  document.getElementById('github-url').textContent = GITHUB_URL;
+  document.getElementById('outro-url').textContent = GITHUB_URL;
+
+  function sceneProgress(scene, t) {
+    const local = t - scene.start;
+    const inP = smooth(local / 0.55);
+    const outP = smooth((scene.end - t) / 0.45);
+    return { local, inP, outP, visible: t >= scene.start - 0.05 && t <= scene.end + 0.05 };
+  }
+
+  function renderAt(t) {
+    const clamped = clamp(t, 0, DURATION);
+    const overall = clamped / DURATION;
+
+    // Background motion.
+    bgGrid.style.backgroundPositionY = `${(clamped * 22) % 72}px`;
+    bgGrid.style.opacity = 0.55 + Math.sin(clamped * 0.7) * 0.08;
+    crtLine.style.top = `${((clamped * 90) % 1920)}px`;
+
+    // HUD.
+    const total = Math.max(0, Math.floor(clamped));
+    const mm = String(Math.floor(total / 60)).padStart(2, '0');
+    const ss = String(total % 60).padStart(2, '0');
+    timecode.textContent = `${mm}:${ss}`;
+    progressFill.style.width = `${overall * 100}%`;
+
+    let activeIndex = 0;
+    scenes.forEach((scene, index) => {
+      const { local, inP, outP, visible } = sceneProgress(scene, clamped);
+      scene.el.style.opacity = visible ? Math.min(inP, outP) : 0;
+      scene.el.style.transform = `translateY(${(1 - inP) * 46 - (1 - outP) * 22}px) scale(${0.986 + inP * 0.014})`;
+      scene.el.style.pointerEvents = visible ? 'auto' : 'none';
+      if (clamped >= scene.start && clamped < scene.end) activeIndex = index;
+
+      // Rise-in elements.
+      scene.el.querySelectorAll('[data-rise]').forEach((el) => {
+        const delay = Number(el.dataset.delay || 0);
+        const p = smooth((local - delay) / 0.55);
+        el.style.opacity = String(p);
+        el.style.transform = `translateY(${(1 - p) * 34}px)`;
+      });
+
+      // Window motion.
+      const win = scene.el.querySelector('[data-window]');
+      if (win) {
+        const p = smooth(local / 1.4);
+        const tilt = scene.start >= 20 ? 0 : 3.2;
+        win.style.transform = `perspective(1400px) rotateX(${(1 - p) * tilt}deg) rotateY(${(1 - p) * -2.4}deg) translateY(${(1 - p) * 28}px) scale(${1.035 - p * 0.035})`;
+      }
+    });
+    sceneLabel.textContent = sceneNames[activeIndex];
+
+    // Intro specifics.
+    if (clamped < 4.2) {
+      const local = clamped;
+      const brand = document.getElementById('intro-brand');
+      const logo = document.querySelector('.intro .logo');
+      const ring = document.querySelector('.intro .logo-ring');
+      const p = smooth(local / 1.4);
+      logo.style.transform = `scale(${0.82 + p * 0.18}) rotate(${(1 - p) * -8}deg)`;
+      logo.style.opacity = String(0.35 + p * 0.65);
+      ring.style.transform = `rotate(${local * 22}deg) scale(${1 + Math.sin(local * 3) * 0.015})`;
+      brand.style.opacity = String(smooth((local - 0.35) / 1.1));
+      brand.style.transform = `translateY(${(1 - smooth((local - 0.35) / 1.1)) * 24}px)`;
+      brand.style.letterSpacing = `${0.12 - smooth((local - 0.35) / 1.6) * 0.09}em`;
+      if (bootBox) bootBox.style.opacity = String(smooth((local - 1.0) / 0.45));
+      bootLines.forEach((line, i) => {
+        const bp = smooth((local - 1.1 - i * 0.35) / 0.4);
+        line.style.opacity = String(bp);
+        line.style.transform = `translateX(${(1 - bp) * -16}px)`;
+      });
+      const glitch = Math.sin(local * 21) > 0.94 && local > 0.7 && local < 1.2;
+      brand.classList.toggle('glitch', glitch);
+    }
+
+    // Glitch on the active scene title at cut points.
+    const cutGlitch = [4, 8, 12, 16, 20, 24, 28, 32].some((cut) => Math.abs(clamped - cut) < 0.09);
+    const sceneEl = scenes[activeIndex]?.el;
+    const h1 = sceneEl?.querySelector('h1');
+    if (h1) h1.classList.toggle('glitch', cutGlitch || (Math.sin(clamped * 9) > 0.985));
+
+    // Theme chips.
+    if (clamped >= 16 && clamped < 20) {
+      const local = clamped - 16;
+      const idx = Math.floor(local / 0.75) % themeKeys.length;
+      const [color, rgb] = themeColors[idx];
+      document.documentElement.style.setProperty('--accent', color);
+      document.documentElement.style.setProperty('--accent-rgb', rgb);
+      themeChips.forEach((chip) => chip.classList.toggle('is-active', chip.dataset.themeChip === themeKeys[idx]));
+    } else if (clamped >= 20) {
+      document.documentElement.style.setProperty('--accent', '#c6f95e');
+      document.documentElement.style.setProperty('--accent-rgb', '198, 249, 94');
+      themeChips.forEach((chip) => chip.classList.remove('is-active'));
+    }
+
+    // Discord timer + equalizer.
+    if (discordTimer) {
+      const elapsed = Math.max(0, Math.floor(clamped - 20));
+      discordTimer.textContent = `01:${String(24 + elapsed).padStart(2, '0')}`;
+    }
+    discordWave.forEach((bar, i) => {
+      const h = 7 + Math.abs(Math.sin(clamped * (3 + i * 0.4) + i)) * 18;
+      bar.style.height = `${h}px`;
+    });
+
+    // Update progress.
+    if (updateFill) {
+      const local = clamped - 24;
+      const pct = clamp(18 + local * 24, 18, 100);
+      updateFill.style.width = `${pct}%`;
+      if (updatePercent) updatePercent.textContent = `${Math.round(pct)}%`;
+    }
+
+    // Download scan.
+    if (downloadScan) {
+      const local = clamped - 28;
+      downloadScan.style.top = `${clamp(local * 140, 0, 360)}px`;
+    }
+
+    // CRT power-off at the very end.
+    const endP = clamp((clamped - 35.15) / 0.75);
+    endFade.style.opacity = String(endP);
+    endLine.style.opacity = String(endP > 0.18 && endP < 0.95 ? 0.9 : 0);
+    endLine.style.width = `${(1 - Math.abs(endP - 0.5) * 2) * 980}px`;
+    document.getElementById('stage').style.transform = endP > 0.72 ? `scaleY(${1 - (endP - 0.72) * 3.2})` : 'none';
+    document.getElementById('stage').style.filter = endP > 0.72 ? `brightness(${1 - (endP - 0.72) * 2.5})` : 'none';
+  }
+
+  window.renderAt = renderAt;
+  window.__ready = Promise.all([
+    document.fonts.ready,
+    ...Array.from(document.images).map((img) => (img.complete ? Promise.resolve() : img.decode().catch(() => {})))
+  ]).then(() => {
+    renderAt(0);
+    return true;
+  });
+  renderAt(0);
+</script>
+</body>
+</html>
