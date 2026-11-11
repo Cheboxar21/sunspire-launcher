@@ -2,6 +2,8 @@
 
 Первый публичный релиз ретро-лаунчера Minecraft на Rust / Tauri 2.
 
+![Sunspire](https://raw.githubusercontent.com/Cheboxar21/sunspire-launcher/main/docs/screenshot-onboarding.png)
+
 ## Что внутри
 
 - Microsoft OAuth 2.0 и офлайн-профили
@@ -17,14 +19,21 @@
 ## Установка
 
 Скачайте `Sunspire-Setup.exe` и запустите. Установка для текущего пользователя,
-Windows 10/11 x64. Данные хранятся в `%APPDATA%\Sunspire`.
+Windows 10/11 x64, без UAC. Данные хранятся в `%APPDATA%\Sunspire`.
+
+Если Windows SmartScreen предупредит о неизвестном издателе — сборка не подписана платным
+сертификатом: **Подробнее → Выполнить всё равно**.
 
 ## Файлы
 
-- `Sunspire-Setup.exe` — установщик
-- `Sunspire-Motion-Preview.mp4` — вертикальный ролик 1080×1920, 36 сек
-- `SHA256SUMS.txt` — контрольные суммы
-- `cover.png` / `cover-wide.png` — обложки
+- `Sunspire-Setup.exe` — установщик (~12 MB)
+- `SHA256SUMS.txt` — контрольная сумма установщика
+
+## Поддержать проект
+
+Sunspire бесплатный. Если хочется отблагодарить автора — [Boosty](https://boosty.to/mobbzi/donate).
+
+---
 
 Minecraft является торговой маркой Mojang Studios. Проект не связан с Mojang,
 Microsoft или Modrinth.
